@@ -1,0 +1,113 @@
+{
+  "name": "token-lens",
+  "version": "0.1.0",
+  "description": "Read-only token lens: where tokens go, wasteful patterns, and tips, with an original pixel mascot. Requires Claude Code 2.1.287+.",
+  "author": {
+    "name": "Aynur Farajova"
+  },
+  "license": "MIT",
+  "keywords": [
+    "tokens",
+    "usage",
+    "prompt-cache",
+    "context",
+    "mod"
+  ],
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "language": {
+      "type": "string",
+      "title": "Language",
+      "description": "Language of the pane, band and toasts (en or az). /tokens lang overrides it.",
+      "options": [
+        "en",
+        "az"
+      ],
+      "default": "en"
+    },
+    "band": {
+      "type": "boolean",
+      "title": "Band above the prompt",
+      "description": "Show one line above the prompt: mascot face, context %, last warning.",
+      "default": true
+    },
+    "animation": {
+      "type": "boolean",
+      "title": "Animate the mascot",
+      "description": "Off shows one still frame (reduced motion).",
+      "default": true
+    },
+    "toasts": {
+      "type": "boolean",
+      "title": "Toasts",
+      "description": "Show a toast for warnings (never for info).",
+      "default": true
+    },
+    "max_toasts": {
+      "type": "number",
+      "title": "Max toasts per session",
+      "description": "At most this many toasts per session (0 to 50).",
+      "default": 5
+    },
+    "cooldown_minutes": {
+      "type": "number",
+      "title": "Toast cooldown (minutes)",
+      "description": "Minutes before the same rule may toast again.",
+      "default": 10
+    },
+    "repeat_read_threshold": {
+      "type": "number",
+      "title": "R1: repeat reads",
+      "description": "Reads of one file, with no edit in between, before R1 fires.",
+      "default": 3
+    },
+    "huge_output_tokens": {
+      "type": "number",
+      "title": "R2: huge output (tokens)",
+      "description": "Estimated tokens of one tool result before R2 fires.",
+      "default": 8000
+    },
+    "full_file_read_tokens": {
+      "type": "number",
+      "title": "R3: full-file read (tokens)",
+      "description": "Estimated tokens of a Read with no offset/limit before R3 fires.",
+      "default": 5000
+    },
+    "error_loop_threshold": {
+      "type": "number",
+      "title": "R4: errors in a row",
+      "description": "Consecutive tool errors before R4 fires.",
+      "default": 3
+    },
+    "context_warn_percent": {
+      "type": "number",
+      "title": "R7: context warning (%)",
+      "description": "Context fill that raises a warning.",
+      "default": 70
+    },
+    "context_strong_percent": {
+      "type": "number",
+      "title": "R7: strong context warning (%)",
+      "description": "Context fill that raises a strong warning.",
+      "default": 85
+    },
+    "subagent_share_percent": {
+      "type": "number",
+      "title": "R8: subagent share (%)",
+      "description": "Share of a turn's tokens used by subagents before R8 notes it.",
+      "default": 50
+    },
+    "ring_size": {
+      "type": "number",
+      "title": "Ledger size",
+      "description": "Tool calls kept in memory for the Tools tab (50 to 5000).",
+      "default": 500
+    },
+    "lru_size": {
+      "type": "number",
+      "title": "Repeat-read memory",
+      "description": "Files remembered for repeat-read detection (20 to 2000).",
+      "default": 200
+    }
+  }
+}

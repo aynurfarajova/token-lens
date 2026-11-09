@@ -1,0 +1,6 @@
+{
+  "name": "token-lens",
+  "description": "token-lens: a read-only Claude Code mod that shows where tokens go, with tips and the Lumi mascot.",
+  "owner": { "name": "Aynur Farajova" },
+  "plugins": [{ "name": "token-lens", "source": "./" }]
+}
