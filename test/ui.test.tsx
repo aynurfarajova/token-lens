@@ -50,9 +50,14 @@ test('the pane draws Live, Tools and Tips on every surface', async ($, on) => {
   for (const surface of ALL) {
     const ui = await $.ui.mount({ ...PANE, surface })
     // Live: exact numbers, the window labelled as assumed until measured.
-    expect(await ui.find({ type: 'Text', text: /Context/ })).toBeDefined()
-    expect((await ui.find({ type: 'Text', text: /\/ 200k/ }))?.text).toContain('(assumed)')
-    expect(await ui.find({ type: 'Text', text: /in 10 · cache read 20k · cache write 400 · out 40/ })).toBeDefined()
+    expect(await ui.find({ type: 'Text', text: /How full the conversation is/ })).toBeDefined()
+    expect((await ui.find({ type: 'Text', text: /\/ 200k/ }))?.text).toContain('(estimated)')
+    expect(await ui.find({ type: 'Text', text: /Last message: 20k tokens in total/ })).toBeDefined()
+    expect(await ui.find({ type: 'Text', text: /Reused from the saved part \(cheap\): 20k/ })).toBeDefined()
+    expect(await ui.find({ type: 'Text', text: /Saved for the next messages: 400/ })).toBeDefined()
+    expect(await ui.find({ type: 'Text', text: /New text \(your message, results\): 10/ })).toBeDefined()
+    expect(await ui.find({ type: 'Text', text: /Claude’s answer: 40/ })).toBeDefined()
+    expect(await ui.find({ type: 'Text', text: /Reused share: 98% \(good\)/ })).toBeDefined()
     // Tools: estimates carry "~"; only the basename is shown.
     await ui.press({ key: 'tab-tools' })
     const read = await ui.find({ type: 'Text', text: /^Read/ })
@@ -62,7 +67,8 @@ test('the pane draws Live, Tools and Tips on every surface', async ($, on) => {
     // Tips: the repeat read, with its fix, dismissible.
     await ui.press({ key: 'tab-tips' })
     expect(await ui.find({ type: 'Text', text: /app\.ts read 3×/ })).toBeDefined()
-    expect(await ui.find({ type: 'Text', text: /offset\/limit/ })).toBeDefined()
+    expect(await ui.find({ type: 'Text', text: /^1\. Tell Claude: .*search for the part you need/ })).toBeDefined()
+    expect(await ui.find({ type: 'Text', text: /^3\. This changes nothing in the file/ })).toBeDefined()
     await ui.press({ key: 'tab-live' })
     await ui.unmount()
   }
@@ -97,7 +103,14 @@ test('the pane follows /tokens lang az', async ($, on) => {
   await $.command.run(cmd('lang az'))
   await $.command.run(cmd(''))
   const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
-  expect(await ui.find({ type: 'Text', text: /Kontekst/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /Söhbət nə qədər doludur/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /Son mesaj: cəmi 20k token/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /Yadda saxlanandan təkrar istifadə \(ucuz\): 20k/ })).toBeDefined()
+  await ui.press({ key: 'tab-tools' })
+  expect(await ui.find({ type: 'Text', text: /^Read \(fayl oxuma\)/ })).toBeDefined()
+  await ui.press({ key: 'tab-tips' })
+  expect(await ui.find({ type: 'Text', text: /app\.ts faylı 3 dəfə təkrar oxundu/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /^1\. Claude-a yazın:/ })).toBeDefined()
   await ui.unmount()
 })
 
@@ -132,7 +145,8 @@ test('toasts: one per rule per cooldown, at most 5 per session', async ($, on) =
   await $.tool.call({ tool: 'Bash', command: 'npm test' })
   await $.tool.call({ tool: 'Bash', command: 'npm test' })
   expect(w.toasts).toHaveLength(1)
-  expect(w.toasts[0]).toContain('Pipe long output through tail/head')
+  expect(w.toasts[0]).toContain('show only the errors and the last 50 lines')
+  expect(w.toasts[0]).not.toContain('\n') // a toast carries only the first step
   // Past the cooldown each time: capped at 5 for the session.
   for (let i = 0; i < 8; i += 1) {
     await w.clock!.advance(11 * 60_000)
@@ -150,7 +164,7 @@ test('toasts: info rules never toast; mute silences the rest', async ($, on) => 
   await $.command.run(cmd('mute'))
   w.toolAnswer = () => ({ result: {}, text: BIG })
   await $.tool.call({ tool: 'Bash', command: 'npm test' })
-  expect(w.toasts).toEqual(['Token lens toasts muted.'])
+  expect(w.toasts).toEqual(['Token lens pop-ups muted.'])
 })
 
 test('toasts: none where nothing draws (claude -p)', async ($, on) => {

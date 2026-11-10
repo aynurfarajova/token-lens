@@ -6,7 +6,7 @@ import type { Elements } from 'claude-code'
 import type { LensLang, LensTab, LensView } from '../../types'
 import { compact, estimate, percent } from '../core/format'
 import { bar } from '../core/view'
-import { t } from '../i18n/index'
+import { hasKey, t } from '../i18n/index'
 import { FACE } from './faces'
 import { RASTERS, RASTER_COLUMNS, RASTER_ROWS, mascotSvg } from './mascot'
 import { hitText } from './text'
@@ -54,13 +54,28 @@ export function ctxColor(v: Pick<LensView, 'ctx' | 'window' | 'contextWarn' | 'c
   return r >= v.contextStrong ? 'error' : r >= v.contextWarn ? 'warning' : 'success'
 }
 
+/** A plain word for how much of the last request was reused from the saved part. */
+export function hitGrade(ratio: number | null): 'good' | 'ok' | 'low' | null {
+  if (ratio === null || !Number.isFinite(ratio)) return null
+  return ratio >= 0.8 ? 'good' : ratio >= 0.5 ? 'ok' : 'low'
+}
+
+/** "Read (read file)": the tool's own name first, then a plain word when there is one. */
+export function toolName(lang: LensLang, tool: string): string {
+  const key = `tool.${tool}`
+  return hasKey(key) ? `${tool} (${t(lang, key)})` : tool
+}
+
 function live(E: UiEls, v: LensView, cols: number) {
   const { Box, Text } = E
   const L = v.lang
   const ratio = v.ctx === null ? null : v.ctx / v.window
   const tot = (x: LensView['session']['main']) => ({
-    requests: x.requests, input: compact(x.input), read: compact(x.cacheRead), write: compact(x.cacheCreation), output: compact(x.output),
+    requests: x.requests,
+    total: compact(x.input + x.cacheRead + x.cacheCreation + x.output),
+    read: compact(x.cacheRead),
   })
+  const grade = v.last === null ? null : hitGrade(v.last.hitRatio)
   return (
     <Box flexDirection="column" gap={1}>
       {mascot(E, v)}
@@ -73,16 +88,24 @@ function live(E: UiEls, v: LensView, cols: number) {
           {v.ctx === null ? '–' : compact(v.ctx)} / {compact(v.window)}
           {v.windowKnown ? '' : t(L, 'label.assumed')}
         </Text>
+        <Text dimColor wrap="wrap">{t(L, 'live.contextHint')}</Text>
       </Box>
       {v.last === null ? (
         <Text dimColor>{t(L, 'live.none')}</Text>
       ) : (
         <Box flexDirection="column">
-          <Text bold>{t(L, 'live.last')}</Text>
-          <Text wrap="wrap">
-            {t(L, 'live.lastLine', { input: compact(v.last.input), read: compact(v.last.cacheRead), write: compact(v.last.cacheCreation), output: compact(v.last.output) })}
+          <Text bold>
+            {t(L, 'live.last', { total: compact(v.last.input + v.last.cacheRead + v.last.cacheCreation + v.last.output) })}
           </Text>
-          <Text>{t(L, 'live.hit', { hit: percent(v.last.hitRatio) })}</Text>
+          <Text wrap="wrap">{t(L, 'live.lastRead', { read: compact(v.last.cacheRead) })}</Text>
+          <Text wrap="wrap">{t(L, 'live.lastWrite', { write: compact(v.last.cacheCreation) })}</Text>
+          <Text wrap="wrap">{t(L, 'live.lastInput', { input: compact(v.last.input) })}</Text>
+          <Text wrap="wrap">{t(L, 'live.lastOutput', { output: compact(v.last.output) })}</Text>
+          {grade === null ? null : (
+            <Text color={grade === 'good' ? 'success' : grade === 'ok' ? 'warning' : 'error'}>
+              {t(L, 'live.hit', { hit: percent(v.last.hitRatio), grade: t(L, `live.hit.${grade}`) })}
+            </Text>
+          )}
         </Box>
       )}
       <Box flexDirection="column">
@@ -95,7 +118,9 @@ function live(E: UiEls, v: LensView, cols: number) {
         {v.session.sub.requests > 0 ? <Text wrap="wrap">{t(L, 'live.sessionSub', tot(v.session.sub))}</Text> : null}
       </Box>
       <Box flexDirection="column">
-        <Text dimColor>{v.ttlKnown ? t(L, 'live.ttlKnown', { ttl: `${v.ttlMinutes} min` }) : t(L, 'live.ttlAssumed')}</Text>
+        <Text dimColor wrap="wrap">
+          {v.ttlKnown ? t(L, 'live.ttlKnown', { ttl: `${v.ttlMinutes} ${L === 'az' ? 'dəq' : 'min'}` }) : t(L, 'live.ttlAssumed')}
+        </Text>
         {v.windowKnown ? null : <Text dimColor>{t(L, 'live.windowAssumed')}</Text>}
         {v.muted ? <Text dimColor>{t(L, 'live.muted')}</Text> : null}
       </Box>
@@ -106,7 +131,7 @@ function live(E: UiEls, v: LensView, cols: number) {
 function tools(E: UiEls, v: LensView, cols: number) {
   const { Box, Text } = E
   const L = v.lang
-  const nameW = Math.max(8, Math.min(22, cols - 30))
+  const nameW = Math.max(8, Math.min(24, cols - 30))
   const pad = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1)}…` : s.padEnd(n))
   if (v.tools.length === 0) return <Text dimColor>{t(L, 'tools.none')}</Text>
   return (
@@ -115,7 +140,7 @@ function tools(E: UiEls, v: LensView, cols: number) {
         <Text bold>{t(L, 'tools.title')}</Text>
         {v.tools.map(row => (
           <Text key={`tool-${row.tool}`} mono wrap="truncate">
-            {pad(row.tool, nameW)} {estimate(row.estTokens).padStart(7)}{'  '}
+            {pad(toolName(L, row.tool), nameW)} {estimate(row.estTokens).padStart(7)}{'  '}
             <Text dimColor>{t(L, 'tools.row', { calls: row.calls, errors: row.errors })}</Text>
           </Text>
         ))}
@@ -124,7 +149,7 @@ function tools(E: UiEls, v: LensView, cols: number) {
         <Text bold>{t(L, 'tools.top')}</Text>
         {v.topCalls.map((c, i) => (
           <Text key={`call-${i}`} mono wrap="truncate">
-            {estimate(c.estTokens).padStart(7)}  {c.tool}
+            {estimate(c.estTokens).padStart(7)}  {toolName(L, c.tool)}
             {c.label ? <Text dimColor> {c.label}</Text> : null}
           </Text>
         ))}
@@ -141,14 +166,19 @@ function tips(E: UiEls, v: LensView, on: PaneHandlers) {
   return (
     <Box flexDirection="column" gap={1}>
       {v.tips.map(tip => {
-        const { message, tip: fix } = hitText(L, tip)
+        const { message, steps } = hitText(L, tip)
         return (
           <Box key={`tip-${tip.key}`} flexDirection="column">
             <Text wrap="wrap">
               <Text color={SEV_COLOR[tip.severity]} bold>[{t(L, `sev.${tip.severity}`)}]</Text> {message}
               {tip.count > 1 ? <Text dimColor> {t(L, 'tips.repeat', { count: tip.count })}</Text> : null}
             </Text>
-            <Text dimColor wrap="wrap">{fix}</Text>
+            {steps.map((step, i) => (
+              <Text key={`step-${tip.key}-${i}`} wrap="wrap">
+                {steps.length > 1 ? `${i + 1}. ` : ''}
+                {step}
+              </Text>
+            ))}
             <Button key={`dismiss:${tip.key}`} label={t(L, 'tips.dismiss')} onPress={() => on.dismiss(tip.key)} />
           </Box>
         )

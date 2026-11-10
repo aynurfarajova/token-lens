@@ -7,6 +7,7 @@ import { toolKind } from '../src/core/ledger'
 import { RULES, RuleEngine, TipBoard, ToastGovernor, basename, classifyTool, commandHead, type Hit } from '../src/core/rules'
 import { en } from '../src/i18n/en'
 import { hasKey, t, tipKey } from '../src/i18n/index'
+import { tipSteps } from '../src/ui/text'
 
 const T = DEFAULTS.thresholds
 const engine = () => new RuleEngine(T, 200)
@@ -187,6 +188,20 @@ test('every rule message and every tip variant resolves in en and az', async () 
   }
   expect(t('en', 'rule.R1.msg', { file: 'a.ts', count: 3 })).toBe('a.ts read 3× with no edit in between')
   expect(Object.keys(en).length).toBeGreaterThan(20)
+})
+
+test('tips are plain steps that never put the project at risk', async () => {
+  // Nothing that deletes, forces, skips hooks or hides output and errors.
+  const RISKY = [/rm -/, /--force/, /--no-verify/, /git reset/, /git push/, /git checkout/, /\s-q\b/, /--silent/, /\/dev\/null/, /chmod/, /sudo/]
+  const tipKeys = (Object.keys(en) as (keyof typeof en)[]).filter(k => /^rule\.R\d\.tip/.test(k))
+  expect(tipKeys.length).toBeGreaterThan(10)
+  for (const lang of ['en', 'az'] as const) {
+    for (const k of tipKeys) {
+      const text = t(lang, k, { tokens: 1 })
+      for (const r of RISKY) expect(r.test(text)).toBe(false)
+      for (const step of tipSteps(text)) expect(step.length).toBeGreaterThan(10)
+    }
+  }
 })
 
 test('config: defaults, clamping, and garbage', async () => {

@@ -51,16 +51,16 @@ Where no flag can be given (a session the desktop app starts), set `CLAUDE_CODE_
 - **Pane, Live tab:**
   - Lumi
   - a context bar with %, coloured; the % is always written too
-  - the last request's **exact** input, cache read, cache write and output, and the cache hit ratio
+  - the last request's **exact** total, broken down in plain words: reused from the saved part (cache read), saved for the next messages (cache write), new text (input) and Claude's answer (output), plus the reused share with a word for it (good ≥ 80%, fair ≥ 50%, low)
   - this turn's tokens, main vs subagents
   - session totals
   - notes whenever a figure is assumed
 - **Pane, Tools tab:**
-  - estimated tokens per tool type, always shown as `~12k`
+  - estimated tokens per tool type, always shown as `~12k`, with a plain word beside common tools (`Read (read file)`)
   - the 5 costliest calls, showing tool type and file name only
-- **Pane, Tips tab:** each triggered rule with its severity in words and colour, the message, how to fix it, a repeat count, and a Dismiss button.
+- **Pane, Tips tab:** each triggered rule with its severity in words and colour, the message, numbered steps to fix it, a repeat count, and a Dismiss button. Steps are written for people who are not developers: each is something you can do or say to Claude, and none puts the project at risk (no deleting, forcing, skipping tests or checks, or hiding errors; a test enforces this).
 - **Band above the prompt:** one line with Lumi's text face, mood word, `ctx NN%`, and the latest warning. A `*` after the % means the window is still assumed. The band is drawn *under* whatever Claude Code or other mods already show there.
-- **Toasts:** warnings only, never info. Limited to one per rule per cooldown (default 10 min) and at most 5 per session, and `/tokens mute` silences them. None appear where nothing draws (`claude -p`).
+- **Toasts:** warnings only, never info. A toast shows the message and the first step only. Limited to one per rule per cooldown (default 10 min) and at most 5 per session, and `/tokens mute` silences them. None appear where nothing draws (`claude -p`).
 
 Tabs also respond to keys `1`, `2` and `3` while the pane has focus.
 
@@ -288,7 +288,7 @@ claude plugin test .
 claude plugin validate .
 ```
 
-**65 tests in 6 files.** They cover:
+**66 tests in 6 files.** They cover:
 - attribution fixtures: normal turn, parallel tools, compaction, `/clear`, error loop, subagents, missing usage, negative deltas
 - rules, mood, ledger and config
 - pass-through: `tool.call` and `turn.step` return the same results, including with fault injection

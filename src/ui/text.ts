@@ -16,18 +16,21 @@ function fmtParams(params: Readonly<Record<string, string | number>>): Record<st
   return out
 }
 
-export function hitText(lang: LensLang, hit: HitLike): { message: string; tip: string } {
-  if (!RULE_IDS.has(hit.rule)) return { message: hit.rule, tip: '' }
-  const def = ruleById(hit.rule as RuleId)
-  const params = fmtParams(hit.params)
-  return {
-    message: t(lang, def.message as StringKey, params),
-    tip: t(lang, tipKey(def.tip, hit.variant), params),
-  }
+/** A tip is one step per line; empty lines are dropped. */
+export function tipSteps(tip: string): string[] {
+  return tip.split('\n').map(s => s.trim()).filter(s => s.length > 0)
 }
 
-/** One line for a toast: what happened, then what to do. */
+export function hitText(lang: LensLang, hit: HitLike): { message: string; tip: string; steps: string[] } {
+  if (!RULE_IDS.has(hit.rule)) return { message: hit.rule, tip: '', steps: [] }
+  const def = ruleById(hit.rule as RuleId)
+  const params = fmtParams(hit.params)
+  const tip = t(lang, tipKey(def.tip, hit.variant), params)
+  return { message: t(lang, def.message as StringKey, params), tip, steps: tipSteps(tip) }
+}
+
+/** One line for a toast: what happened, then the first step. The Tips tab has the rest. */
 export function toastLine(lang: LensLang, hit: HitLike): string {
-  const { message, tip } = hitText(lang, hit)
-  return tip ? `${message}. ${tip}` : message
+  const { message, steps } = hitText(lang, hit)
+  return steps.length > 0 ? `${message}. ${steps[0]}` : message
 }

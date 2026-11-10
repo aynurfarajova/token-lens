@@ -85,7 +85,7 @@ test('/tokens answers with no text (nothing reaches the model) and confirms by t
   const r = await $.command.run(cmd('mute'))
   expect(r.text).toBeUndefined()
   expect(r.context).toBeUndefined()
-  expect(w.toasts).toEqual(['Token lens toasts muted.'])
+  expect(w.toasts).toEqual(['Token lens pop-ups muted.'])
   await $.command.run(cmd('lang az'))
   expect(w.toasts[1]).toBe('Token lens dili: Azərbaycan dili.')
   await $.command.run(cmd('bogus'))
