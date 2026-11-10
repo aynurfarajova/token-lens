@@ -1,6 +1,6 @@
 {
   "name": "token-lens",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Read-only token lens: where tokens go, wasteful patterns, and tips, with an original pixel mascot. Requires Claude Code 2.1.287+.",
   "author": {
     "name": "Aynur Farajova"
