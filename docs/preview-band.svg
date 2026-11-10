@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="64" viewBox="0 0 820 64">
+<rect width="820" height="64" rx="12" fill="#14161f"/>
+<rect x="0.5" y="0.5" width="819" height="63" rx="12" fill="none" stroke="#2c3142"/>
+<text x="20" y="38" font-size="14" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#e6e8ef">[•︵•] <tspan fill="#8a90a6">warning</tspan> · <tspan fill="#4cc38a">ctx 52%</tspan> · <tspan fill="#f5c542">warning:</tspan> app.ts read 3× with no edit in between</text>
+</svg>

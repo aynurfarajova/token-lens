@@ -1,6 +1,32 @@
-# token-lens
+<p align="center">
+  <img src="docs/lumi/happy.svg" width="112" height="112" alt="Lumi, the token-lens mascot: a teal pixel blob with a gold coin on an antenna, smiling">
+</p>
 
-A **read-only** Claude Code mod that shows where tokens go, live: context fill, exact per-request usage, cache hits, an estimate per tool, and tips when a pattern wastes tokens. It has an original pixel mascot, **Lumi**, whose mood follows the session.
+<h1 align="center">token-lens</h1>
+
+<p align="center">
+  <b>See where your Claude Code tokens go, in plain words.</b><br>
+  A <b>read-only</b> mod: live numbers, step-by-step tips when something wastes tokens, and <b>Lumi</b>, a pixel mascot whose mood follows your session.
+</p>
+
+<p align="center">
+  Claude Code 2.1.287+ · English and Azərbaycan dili · MIT
+</p>
+
+<p align="center">
+  <img src="docs/preview-live.svg" width="820" alt="The token-lens pane, Live tab: Lumi smiling beside a bar showing the conversation 52% full, then the last message broken down in plain words: 104k reused cheaply, 259 saved for next time, 2 new, 705 in Claude's answer, reused share 99% (good)">
+</p>
+
+<table align="center">
+  <tr>
+    <td align="center"><img src="docs/lumi/idle.svg" width="64" height="64" alt="Lumi idle"><br><sub>idle</sub></td>
+    <td align="center"><img src="docs/lumi/happy.svg" width="64" height="64" alt="Lumi happy"><br><sub>efficient</sub></td>
+    <td align="center"><img src="docs/lumi/thinking.svg" width="64" height="64" alt="Lumi thinking"><br><sub>thinking</sub></td>
+    <td align="center"><img src="docs/lumi/worried.svg" width="64" height="64" alt="Lumi worried"><br><sub>warning</sub></td>
+    <td align="center"><img src="docs/lumi/alarmed.svg" width="64" height="64" alt="Lumi alarmed"><br><sub>strong warning</sub></td>
+    <td align="center"><img src="docs/lumi/sleepy.svg" width="64" height="64" alt="Lumi sleepy"><br><sub>saved part expiring</sub></td>
+  </tr>
+</table>
 
 It never changes what Claude Code does. It never calls a model, never adds anything to Claude's context, never touches the system prompt, and makes no network, process or file-system calls.
 
@@ -48,6 +74,14 @@ Where no flag can be given (a session the desktop app starts), set `CLAUDE_CODE_
 
 ### What you see
 
+<p align="center">
+  <img src="docs/preview-tips.svg" width="820" alt="The Tips tab: a warning, 3 errors in a row, with four numbered steps: press Esc to stop Claude, tell Claude what you expect, ask it to explain the cause, and say no if turning off tests is suggested to hide the error">
+</p>
+
+<p align="center">
+  <img src="docs/preview-band.svg" width="820" alt="The band above the prompt: Lumi's worried face, the word warning, ctx 52%, and the latest warning: app.ts read 3 times with no edit in between">
+</p>
+
 - **Pane, Live tab:**
   - Lumi
   - a context bar with %, coloured; the % is always written too
@@ -68,14 +102,14 @@ Tabs also respond to keys `1`, `2` and `3` while the pane has focus.
 
 Lumi is an **original character made for this repo**: a round teal drop with big eyes and an antenna holding a gold token coin. She isn't based on Anthropic's mascot or any other brand character. Every frame is drawn in code in `src/ui/mascot.ts`.
 
-| Mood | When | What she does |
-|---|---|---|
-| idle | nothing notable | open eyes, blinks |
-| happy | efficient work: high cache hits, targeted searches, small edits | `^ ^` eyes, grin, cheeks, the coin bounces |
-| thinking | a turn is running | glances up and around, the coin spins |
-| worried | a warning in the last 2 min, or context ≥ 70% | brows up, frown, sweat drop |
-| alarmed | a strong warning, or context ≥ 85% | wide eyes, `O` mouth, red coin, small shake |
-| sleepy | idle long enough for the cache to cool | lids shut, the coin dims, a bubble drifts up |
+| | Mood | When | What she does |
+|---|---|---|---|
+| <img src="docs/lumi/idle.svg" width="40" height="40" alt=""> | idle | nothing notable | open eyes, blinks |
+| <img src="docs/lumi/happy.svg" width="40" height="40" alt=""> | happy | efficient work: high cache hits, targeted searches, small edits | `^ ^` eyes, grin, cheeks, the coin bounces |
+| <img src="docs/lumi/thinking.svg" width="40" height="40" alt=""> | thinking | a turn is running | glances up and around, the coin spins |
+| <img src="docs/lumi/worried.svg" width="40" height="40" alt=""> | worried | a warning in the last 2 min, or context ≥ 70% | brows up, frown, sweat drop |
+| <img src="docs/lumi/alarmed.svg" width="40" height="40" alt=""> | alarmed | a strong warning, or context ≥ 85% | wide eyes, `O` mouth, red coin, small shake |
+| <img src="docs/lumi/sleepy.svg" width="40" height="40" alt=""> | sleepy | idle long enough for the cache to cool | lids shut, the coin dims, a bubble drifts up |
 
 How she's drawn on each surface:
 - **Terminal:** a 16×8 grid of half-block characters, repainted with `$.ui.blit` only when the frame changes (2–6 fps, never above 8). Nothing else in the pane is redrawn.
@@ -277,7 +311,14 @@ token-lens/
 ├── src/ui/                      pane, band, mascot, faces, text
 ├── src/i18n/                    en, az (the types make az carry every English key)
 ├── types/index.d.ts             the $.state contract (PluginState)
-└── test/                        unit tests and mod-kit tests (world.tsx is the fake engine)
+├── test/                        unit tests and mod-kit tests (world.tsx is the fake engine)
+└── docs/                        README previews of Lumi and the pane (SVG), and previews.mts
+```
+
+The previews are drawn from the mod's own sprites. After changing `src/ui/mascot.ts`, redraw them (Node 22.18 or later):
+
+```bash
+node docs/previews.mts .
 ```
 
 ```bash
