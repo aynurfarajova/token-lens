@@ -20,11 +20,11 @@
 <table align="center">
   <tr>
     <td align="center"><img src="docs/lumi/idle.svg" width="64" height="64" alt="Lumi idle"><br><sub>idle</sub></td>
-    <td align="center"><img src="docs/lumi/happy.svg" width="64" height="64" alt="Lumi happy"><br><sub>efficient</sub></td>
+    <td align="center"><img src="docs/lumi/happy.svg" width="64" height="64" alt="Lumi happy"><br><sub>happy</sub></td>
     <td align="center"><img src="docs/lumi/thinking.svg" width="64" height="64" alt="Lumi thinking"><br><sub>thinking</sub></td>
-    <td align="center"><img src="docs/lumi/worried.svg" width="64" height="64" alt="Lumi worried"><br><sub>warning</sub></td>
-    <td align="center"><img src="docs/lumi/alarmed.svg" width="64" height="64" alt="Lumi alarmed"><br><sub>strong warning</sub></td>
-    <td align="center"><img src="docs/lumi/sleepy.svg" width="64" height="64" alt="Lumi sleepy"><br><sub>saved part expiring</sub></td>
+    <td align="center"><img src="docs/lumi/worried.svg" width="64" height="64" alt="Lumi worried"><br><sub>worried</sub></td>
+    <td align="center"><img src="docs/lumi/alarmed.svg" width="64" height="64" alt="Lumi alarmed"><br><sub>alarmed</sub></td>
+    <td align="center"><img src="docs/lumi/sleepy.svg" width="64" height="64" alt="Lumi sleepy"><br><sub>sleepy</sub></td>
   </tr>
 </table>
 
@@ -102,14 +102,16 @@ Tabs also respond to keys `1`, `2` and `3` while the pane has focus.
 
 Lumi is an **original character made for this repo**: a round teal drop with big eyes and an antenna holding a gold token coin. She isn't based on Anthropic's mascot or any other brand character. Every frame is drawn in code in `src/ui/mascot.ts`.
 
-| | Mood | When | What she does |
-|---|---|---|---|
-| <img src="docs/lumi/idle.svg" width="40" height="40" alt=""> | idle | nothing notable | open eyes, blinks |
-| <img src="docs/lumi/happy.svg" width="40" height="40" alt=""> | happy | efficient work: high cache hits, targeted searches, small edits | `^ ^` eyes, grin, cheeks, the coin bounces |
-| <img src="docs/lumi/thinking.svg" width="40" height="40" alt=""> | thinking | a turn is running | glances up and around, the coin spins |
-| <img src="docs/lumi/worried.svg" width="40" height="40" alt=""> | worried | a warning in the last 2 min, or context ≥ 70% | brows up, frown, sweat drop |
-| <img src="docs/lumi/alarmed.svg" width="40" height="40" alt=""> | alarmed | a strong warning, or context ≥ 85% | wide eyes, `O` mouth, red coin, small shake |
-| <img src="docs/lumi/sleepy.svg" width="40" height="40" alt=""> | sleepy | idle long enough for the cache to cool | lids shut, the coin dims, a bubble drifts up |
+The moods, left to right in the gallery at the top:
+
+| Mood | When | What she does |
+|---|---|---|
+| idle | nothing notable | open eyes, blinks |
+| happy | efficient work: high cache hits, targeted searches, small edits | `^ ^` eyes, grin, cheeks, the coin bounces |
+| thinking | a turn is running | glances up and around, the coin spins |
+| worried | a warning in the last 2 min, or context ≥ 70% | brows up, frown, sweat drop |
+| alarmed | a strong warning, or context ≥ 85% | wide eyes, `O` mouth, red coin, small shake |
+| sleepy | idle long enough for the cache to cool | lids shut, the coin dims, a bubble drifts up |
 
 How she's drawn on each surface:
 - **Terminal:** a 16×8 grid of half-block characters, repainted with `$.ui.blit` only when the frame changes (2–6 fps, never above 8). Nothing else in the pane is redrawn.
